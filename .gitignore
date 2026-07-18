@@ -1,0 +1,38 @@
+# ===== Dependencies =====
+node_modules/
+contracts/lib/
+
+# ===== Build outputs =====
+dist/
+out/
+cache/
+contracts/out/
+contracts/cache/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+
+# ===== Foundry artifacts =====
+contracts/broadcast/
+
+# ===== Env / secrets =====
+.env
+.env.local
+*.key
+*.pem
+
+# ===== OS / IDE =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== Logs =====
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# ===== Optional: design mockups (uncomment to exclude) =====
+# design/

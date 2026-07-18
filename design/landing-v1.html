@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArcNetting — Multilateral USDC Clearing on Arc</title>
+<meta name="description" content="Net B2B obligations off-chain, settle residuals on-chain in USDC. Built on Arc Testnet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05070d;
+  --bg-elev: #0a0f1a;
+  --bg-card: #0d1420;
+  --border: #1a2332;
+  --border-strong: #24314a;
+  --text: #e7ecf3;
+  --text-muted: #8a94a8;
+  --text-faint: #5a6579;
+  --accent: #2775ca;
+  --accent-2: #10b981;
+  --accent-rgb: 39, 117, 202;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+a { color: inherit; text-decoration: none; }
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+</style>
+</head>
+<body>
+<style>
+/* ===== Nav ===== */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(5,7,13,0.8); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.logo-dot { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+.nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--text-muted); }
+.nav-links a:hover { color: var(--text); }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card); color: var(--text);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn-primary:hover { background: #1e5fa8; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+
+/* ===== Hero ===== */
+.hero { padding: 96px 0 64px; position: relative; overflow: hidden; }
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 20%, rgba(var(--accent-rgb), 0.12), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 75% 60%, rgba(16,185,129, 0.08), transparent 60%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: center; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 12px; border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.1); border: 1px solid rgba(var(--accent-rgb), 0.3);
+  font-size: 12px; color: var(--accent); font-weight: 500;
+  margin-bottom: 24px;
+}
+.eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-2); }
+h1 {
+  font-size: 56px; line-height: 1.05; font-weight: 700;
+  letter-spacing: -0.03em; margin-bottom: 20px;
+}
+h1 .accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-sub { font-size: 18px; color: var(--text-muted); margin-bottom: 32px; max-width: 480px; line-height: 1.6; }
+.hero-cta { display: flex; gap: 12px; margin-bottom: 48px; }
+.hero-stats {
+  display: flex; gap: 32px; padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.hstat .v { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.hstat .k { font-size: 12px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+/* ===== Hero visual: netting diagram ===== */
+.hero-visual { position: relative; }
+.net-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.net-card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 14px; margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--text-muted);
+}
+.net-row {
+  display: grid; grid-template-columns: 100px 1fr 100px; gap: 12px; align-items: center;
+  padding: 8px 0; font-size: 13px;
+}
+.net-node {
+  padding: 6px 10px; border-radius: 6px; text-align: center;
+  background: var(--bg-elev); border: 1px solid var(--border-strong);
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+}
+.net-flow { position: relative; height: 20px; }
+.net-flow::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  height: 2px; background: var(--border-strong);
+}
+.net-flow .amt {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  padding: 2px 8px; background: var(--bg-card);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--text-muted);
+}
+.net-arrow { stroke: var(--accent); stroke-width: 2; fill: none; marker-end: url(#arr); }
+.net-summary {
+  margin-top: 16px; padding: 12px;
+  background: rgba(16,185,129, 0.06); border: 1px solid rgba(16,185,129, 0.2);
+  border-radius: var(--radius-sm);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px;
+}
+.net-summary .save { color: var(--accent-2); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  h1 { font-size: 40px; }
+  .nav-links { display: none; }
+}
+</style>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="logo"><div class="logo-dot"></div>ArcNetting</div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#proof">On-chain proof</a>
+      <a href="#contracts">Contracts</a>
+      <a href="https://docs.arc.io" target="_blank">Arc Docs</a>
+    </div>
+    <div>
+      <a class="btn btn-sm" href="https://testnet.arcscan.app/address/0xFb906A05D849729825e54ebD737bdC936E91271D" target="_blank">View on ArcScan</a>
+      <a class="btn btn-sm btn-primary" href="#cta">Launch App</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <div>
+      <div class="eyebrow">Live on Arc Testnet</div>
+      <h1>Net obligations.<br><span class="accent">Settle residuals.</span></h1>
+      <p class="hero-sub">
+        ArcNetting is a multilateral clearing primitive for B2B payments.
+        Map obligations across your network, net them off-chain, and settle
+        only the residual in USDC on Arc — atomically, transparently, in one transaction.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#cta">Launch App →</a>
+        <a class="btn" href="#how">How it works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="v">92.86%</div><div class="k">Liquidity saved</div></div>
+        <div class="hstat"><div class="v">2.6 → 0.2</div><div class="k">Gross → Net USDC</div></div>
+        <div class="hstat"><div class="v">1 tx</div><div class="k">Atomic settlement</div></div>
+        <div class="hstat"><div class="v">5042002</div><div class="k">Arc Chain ID</div></div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="net-card">
+        <div class="net-card-head mono">
+          <span>CYCLE #1 · 3 PARTIES</span>
+          <span style="color: var(--accent-2)">● SETTLED</span>
+        </div>
+        <div class="net-row">
+          <div class="net-node">Alice</div>
+          <svg height="20" viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%"><defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2775ca"/></marker></defs><line x1="0" y1="10" x2="100" y2="10" class="net-arrow"/></svg>
+          <div class="net-node">Bob</div>
+        </div>
+        <div class="net-row">
+          <div class="net-node">Bob</div>
+          <svg height="20" viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%"><line x1="0" y1="10" x2="100" y2="10" class="net-arrow"/></svg>
+          <div class="net-node">Carol</div>
+        </div>
+        <div class="net-row">
+          <div class="net-node">Carol</div>
+          <svg height="20" viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%"><line x1="0" y1="10" x2="100" y2="10" class="net-arrow"/></svg>
+          <div class="net-node">Alice</div>
+        </div>
+        <div class="net-summary">
+          <span style="color: var(--text-muted)">3 gross obligations → 1 net transfer</span>
+          <span class="save">−92.86% USDC moved</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+/* ===== Problem / Solution ===== */
+.section { padding: 80px 0; }
+.section-head { max-width: 640px; margin-bottom: 48px; }
+.section-tag {
+  font-size: 12px; color: var(--accent); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;
+}
+h2 { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
+.section-sub { font-size: 16px; color: var(--text-muted); }
+.compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+}
+.compare-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+}
+.compare-card.bad { border-left: 3px solid var(--danger); }
+.compare-card.good { border-left: 3px solid var(--accent-2); }
+.compare-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+.compare-card.bad .compare-label { color: var(--danger); }
+.compare-card.good .compare-label { color: var(--accent-2); }
+.compare-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+.compare-list { list-style: none; }
+.compare-list li {
+  padding: 8px 0 8px 24px; position: relative;
+  color: var(--text-muted); font-size: 14px;
+}
+.compare-list li::before {
+  content: ''; position: absolute; left: 0; top: 14px;
+  width: 12px; height: 2px; background: var(--text-faint);
+}
+.compare-card.good .compare-list li::before { background: var(--accent-2); }
+.compare-metric {
+  margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.compare-metric .num {
+  font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700;
+}
+.compare-card.bad .num { color: var(--danger); }
+.compare-card.good .num { color: var(--accent-2); }
+.compare-metric .lbl { font-size: 12px; color: var(--text-faint); }
+@media (max-width: 800px) { .compare { grid-template-columns: 1fr; } }
+</style>
+
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">The problem</div>
+      <h2>Gross settlement ties up capital.</h2>
+      <p class="section-sub">
+        In a network of trading partners, most obligations cancel each other out.
+        Yet traditional rails settle every leg in full — multiplying both
+        the liquidity locked and the number of on-chain transactions.
+      </p>
+    </div>
+    <div class="compare">
+      <div class="compare-card bad">
+        <div class="compare-label">Gross settlement</div>
+        <div class="compare-title">Every invoice moves in full</div>
+        <ul class="compare-list">
+          <li>A pays B 100, B pays C 100, C pays A 80</li>
+          <li>3 on-chain transfers, 280 USDC of float</li>
+          <li>Capital sits idle between legs</li>
+          <li>Each transfer pays gas and slippage</li>
+        </ul>
+        <div class="compare-metric">
+          <span class="num">280</span>
+          <span class="lbl">USDC moved</span>
+        </div>
+      </div>
+      <div class="compare-card good">
+        <div class="compare-label">Multilateral netting</div>
+        <div class="compare-title">Only the residual moves</div>
+        <ul class="compare-list">
+          <li>Map obligations across all counterparties</li>
+          <li>Net off-chain: A net −20, B net 0, C net +20</li>
+          <li>Settle one atomic transaction on Arc</li>
+          <li>Capital efficiency approaches theoretical max</li>
+        </ul>
+        <div class="compare-metric">
+          <span class="num">20</span>
+          <span class="lbl">USDC moved · 92.86% saved</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.step {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+}
+.step-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.15); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 14px; margin-bottom: 16px;
+}
+.step-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.step-code {
+  margin-top: 16px; padding: 12px;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--text-muted); overflow-x: auto;
+}
+.step-code .k { color: var(--accent); }
+@media (max-width: 800px) { .steps { grid-template-columns: 1fr; } }
+</style>
+
+<section class="section" style="background: var(--bg-elev); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">How it works</div>
+      <h2>Three steps to atomic settlement.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Register & submit</div>
+        <div class="step-desc">
+          Enterprises register on-chain, then submit bilateral obligations
+          (invoices) with an amount, counterparty, and due date.
+        </div>
+        <div class="step-code">
+          <span class="k">submitObligation</span>(<br>
+          &nbsp;&nbsp;creditor: 0x95eF…,<br>
+          &nbsp;&nbsp;amount: 100 USDC,<br>
+          &nbsp;&nbsp;dueDate: 2026-07-25<br>)
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Confirm & close cycle</div>
+        <div class="step-desc">
+          Counterparties confirm each obligation bilaterally.
+          The operator snapshots confirmed items into a netting cycle.
+        </div>
+        <div class="step-code">
+          <span class="k">closeCycle</span>([0, 1, 2])<br>
+          <span style="color: var(--accent-2)">// locks 3 obligations</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Net & settle</div>
+        <div class="step-desc">
+          Off-chain engine computes minimum transfers.
+          One atomic <em>settle()</em> moves residuals in USDC on Arc.
+        </div>
+        <div class="step-code">
+          <span class="k">settle</span>(<br>
+          &nbsp;&nbsp;payers: [Alice],<br>
+          &nbsp;&nbsp;receivers: [Carol]<br>)<br>
+          <span style="color: var(--accent-2)">// net: 0.2 USDC moved</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.proof-table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 14px; }
+.proof-table th {
+  text-align: left; padding: 12px 16px;
+  color: var(--text-faint); font-weight: 500; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+}
+.proof-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.proof-table tr:hover { background: rgba(var(--accent-rgb), 0.03); }
+.hash { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+.hash:hover { text-decoration: underline; }
+.pill {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+}
+.pill-ok { background: rgba(16,185,129, 0.12); color: var(--accent-2); }
+.pill-warn { background: rgba(245,158,11, 0.12); color: var(--warn); }
+.metric-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-bottom: 32px;
+}
+.metric-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+}
+.metric-card .v {
+  font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700;
+  color: var(--accent);
+}
+.metric-card .k { font-size: 12px; color: var(--text-faint); margin-top: 4px; }
+@media (max-width: 800px) { .metric-row { grid-template-columns: repeat(2, 1fr); } }
+</style>
+
+<section class="section" id="proof">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">On-chain proof</div>
+      <h2>Every claim is verifiable.</h2>
+      <p class="section-sub">
+        Cycle #1 settled on Arc Testnet on 2026-07-18.
+        All numbers below are pulled from the live contract.
+      </p>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-card"><div class="v">2.8</div><div class="k">Gross obligations (USDC)</div></div>
+      <div class="metric-card"><div class="v">0.2</div><div class="k">Net settled (USDC)</div></div>
+      <div class="metric-card"><div class="v" style="color: var(--accent-2)">92.86%</div><div class="k">Liquidity saved</div></div>
+      <div class="metric-card"><div class="v">1</div><div class="k">Atomic transactions</div></div>
+    </div>
+
+    <table class="proof-table">
+      <thead>
+        <tr>
+          <th>Step</th><th>Transaction</th><th>Status</th><th>Gas (USDC)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Deploy NettingHub</td>
+          <td><a class="hash" href="https://testnet.arcscan.app/tx/0x93e79166e2cb9bcd3d96615c0b3215ea9ae07299667fa3df148fd5ab6fe36dca" target="_blank">0x93e79166…fe36dca</a></td>
+          <td><span class="pill pill-ok">Success</span></td>
+          <td class="mono">0.049</td>
+        </tr>
+        <tr>
+          <td>closeCycle([3,4,5])</td>
+          <td><a class="hash" href="https://testnet.arcscan.app/tx/0x41573b8ff96a08a3ee0e8d2b6c592f233fc75fe815e619e1e0cced00d9e868de" target="_blank">0x41573b8f…e868de</a></td>
+          <td><span class="pill pill-ok">Success</span></td>
+          <td class="mono">0.002</td>
+        </tr>
+        <tr>
+          <td>settle(Alice → Carol 0.2)</td>
+          <td><a class="hash" href="https://testnet.arcscan.app/tx/0x3c67b55cf122cece36c036218c72fef7b615fc2998c7ef21ef94d71a57d02880" target="_blank">0x3c67b55c…d02880</a></td>
+          <td><span class="pill pill-ok">Success</span></td>
+          <td class="mono">0.003</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 24px; padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">
+      <span style="color: var(--accent-2)">// Settled event emitted on-chain</span><br>
+      Settled(<br>
+      &nbsp;&nbsp;cycle: 1,<br>
+      &nbsp;&nbsp;nettedAmount: 200000,&nbsp;&nbsp;<span style="color: var(--accent-2)">// 0.2 USDC</span><br>
+      &nbsp;&nbsp;savedAmount: 2600000,&nbsp;&nbsp;<span style="color: var(--accent-2)">// 2.6 USDC saved</span><br>
+      &nbsp;&nbsp;transferCount: 2<br>)
+    </div>
+  </div>
+</section>
+<style>
+.contract-list {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.contract-item {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.contract-item .name { font-weight: 600; margin-bottom: 4px; }
+.contract-item .addr {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--text-muted);
+}
+.contract-item a { color: var(--accent); font-size: 13px; }
+.contract-item a:hover { text-decoration: underline; }
+@media (max-width: 800px) { .contract-list { grid-template-columns: 1fr; } }
+
+.cta-section {
+  padding: 96px 0; text-align: center;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(var(--accent-rgb), 0.15), transparent 60%);
+}
+.cta-section h2 { font-size: 44px; margin-bottom: 16px; }
+.cta-section .section-sub { margin-bottom: 32px; }
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 48px 0 32px;
+  color: var(--text-faint); font-size: 13px;
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+.footer-col h4 { color: var(--text); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.footer-col a { display: block; padding: 4px 0; color: var(--text-faint); }
+.footer-col a:hover { color: var(--text); }
+.footer-bottom {
+  padding-top: 24px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+@media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+
+<section class="section" id="contracts">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">Contracts</div>
+      <h2>Deployed & verified on Arc.</h2>
+    </div>
+    <div class="contract-list">
+      <div class="contract-item">
+        <div>
+          <div class="name">NettingHub</div>
+          <div class="addr">0xFb906A05D849729825e54ebD737bdC936E91271D</div>
+        </div>
+        <a href="https://testnet.arcscan.app/address/0xFb906A05D849729825e54ebD737bdC936E91271D" target="_blank">View →</a>
+      </div>
+      <div class="contract-item">
+        <div>
+          <div class="name">USDC (ERC-20)</div>
+          <div class="addr">0x3600000000000000000000000000000000000000</div>
+        </div>
+        <a href="https://testnet.arcscan.app/address/0x3600000000000000000000000000000000000000" target="_blank">View →</a>
+      </div>
+      <div class="contract-item">
+        <div>
+          <div class="name">Operator (deployer)</div>
+          <div class="addr">0xBC841F74E7EacF909a3662b11a3a588BEe3b071C</div>
+        </div>
+        <a href="https://testnet.arcscan.app/address/0xBC841F74E7EacF909a3662b11a3a588BEe3b071C" target="_blank">View →</a>
+      </div>
+      <div class="contract-item">
+        <div>
+          <div class="name">Arc Testnet</div>
+          <div class="addr">Chain ID 5042002 · rpc.testnet.arc.network</div>
+        </div>
+        <a href="https://docs.arc.io/arc/references/connect-to-arc" target="_blank">Docs →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="cta">
+  <div class="container">
+    <h2>Start netting on Arc.</h2>
+    <p class="section-sub" style="max-width: 480px; margin: 0 auto 32px;">
+      Connect your wallet, register your company, and settle your first
+      multilateral netting cycle in under five minutes.
+    </p>
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <a class="btn btn-primary" href="/app" style="padding: 12px 28px; font-size: 15px;">Launch App →</a>
+      <a class="btn" href="https://faucet.circle.com" target="_blank" style="padding: 12px 28px; font-size: 15px;">Get testnet USDC</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="logo" style="margin-bottom: 12px;"><div class="logo-dot"></div>ArcNetting</div>
+        <div style="font-size: 13px; max-width: 280px;">
+          Multilateral clearing and obligation netting for the Arc ecosystem.
+          Built on Circle's programmable money chain.
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#how">How it works</a>
+        <a href="#proof">On-chain proof</a>
+        <a href="#contracts">Contracts</a>
+      </div>
+      <div class="footer-col">
+        <h4>Developers</h4>
+        <a href="https://docs.arc.io" target="_blank">Arc Docs</a>
+        <a href="https://testnet.arcscan.app" target="_blank">ArcScan</a>
+        <a href="https://faucet.circle.com" target="_blank">Faucet</a>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <a href="https://community.arc.io" target="_blank">Arc House</a>
+        <a href="https://x.com" target="_blank">X (Twitter)</a>
+        <a href="https://github.com" target="_blank">GitHub</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ArcNetting. Built on Arc Testnet.</span>
+      <span class="mono">chain 5042002 · usdc native gas</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
