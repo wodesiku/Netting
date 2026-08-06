@@ -1,4 +1,4 @@
-# ⚡ ArcNetting
+# ⚡ Netting
 
 > Multilateral obligation netting & USDC settlement on **Arc Testnet**.
 > Inspired by [Cycles](https://community.arc.io/home/blogs/arc-cycles-multilateral-clearing-and-settlement-on-arc-2026-07-17) — net B2B obligations off-chain, settle residuals on-chain in USDC.
