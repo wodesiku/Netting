@@ -5,15 +5,16 @@ import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 import {NettingHub} from "../src/NettingHub.sol";
 
-/// @notice Deploy NettingHub to Arc Testnet.
-/// Usage:
+/// @notice Deploy NettingHub to Arc mainnet (chain ID 5042). Moves real USDC: review everything first.
+/// Usage (use an encrypted keystore or env var, never a pasted literal key):
 ///   export PRIVATE_KEY=0x...
-///   forge script script/Deploy.s.sol --rpc-url arc_testnet --broadcast --legacy
+///   forge script script/Deploy.s.sol --rpc-url arc_mainnet --broadcast --legacy
 contract Deploy is Script {
-    // Arc Testnet ERC-20 USDC (from https://docs.arc.io/arc/references/contract-addresses)
+    // Arc ERC-20 USDC (same address on mainnet and testnet) (from https://docs.arc.io/arc/references/contract-addresses)
     address constant USDC = 0x3600000000000000000000000000000000000000;
 
     function run() external {
+        require(block.chainid == 5042, "Deploy: not Arc mainnet");
         uint256 pk = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(pk);
         console.log("Deployer:", deployer);
@@ -24,6 +25,6 @@ contract Deploy is Script {
         vm.stopBroadcast();
 
         console.log("NettingHub:", address(hub));
-        console.log("Explorer: https://testnet.arcscan.app/address/%s", address(hub));
+        console.log("Explorer: https://explorer.arc.io/address/%s", address(hub));
     }
 }

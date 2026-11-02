@@ -11,14 +11,6 @@ export function CTA() {
           <a className="lbtn lbtn-primary" href="/app" style={{ padding: "12px 28px", fontSize: 15 }}>
             Launch App →
           </a>
-          <a
-            className="lbtn"
-            href="https://faucet.circle.com"
-            target="_blank" rel="noreferrer"
-            style={{ padding: "12px 28px", fontSize: 15 }}
-          >
-            Get testnet USDC
-          </a>
         </div>
       </div>
     </section>

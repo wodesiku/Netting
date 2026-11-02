@@ -29,7 +29,7 @@ export function Contracts() {
       <div className="lcontainer">
         <div className="lsection-head">
           <div className="lsection-tag">Contracts</div>
-          <h2>Deployed & verified on Arc.</h2>
+          <h2>Reference deployment on Arc Testnet.</h2>
         </div>
         <div className="lcontract-list">
           {CONTRACTS.map((c) => (

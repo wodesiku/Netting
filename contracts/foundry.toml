@@ -14,6 +14,7 @@ remappings = [
 
 [rpc_endpoints]
 arc_testnet = "https://rpc.testnet.arc.network"
+arc_mainnet = "https://rpc.mainnet.arc.io"
 
 [etherscan]
 arc_testnet = { key = "none", url = "https://testnet.arcscan.app/api" }

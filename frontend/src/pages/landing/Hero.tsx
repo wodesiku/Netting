@@ -31,7 +31,7 @@ export function Hero() {
     <section className="lhero">
       <div className="lcontainer lhero-inner">
         <div>
-          <div className="leyebrow">Live on Arc Testnet</div>
+          <div className="leyebrow">Built on Arc</div>
           <h1>
             Net obligations.<br />
             <span className="laccent">Settle residuals.</span>

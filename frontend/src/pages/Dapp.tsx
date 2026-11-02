@@ -1,5 +1,5 @@
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { arcTestnet } from "../chain";
+import { arcMainnet } from "../chain";
 import { RegisterCard } from "../components/RegisterCard";
 import { ObligationsCard } from "../components/ObligationsCard";
 import { SettleCard } from "../components/SettleCard";
@@ -12,7 +12,7 @@ export function Dapp() {
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
 
-  const onArc = chain?.id === arcTestnet.id;
+  const onArc = chain?.id === arcMainnet.id;
 
   return (
     <div className="dapp">
@@ -34,12 +34,12 @@ export function Dapp() {
             <div className="addr">{address}</div>
             <div style={{ marginTop: 8 }}>
               <span className={`badge ${onArc ? "ok" : "err"}`}>
-                {onArc ? "Arc Testnet" : `Wrong chain: ${chain?.name ?? "?"}`}
+                {onArc ? "Arc Mainnet" : `Wrong chain: ${chain?.name ?? "?"}`}
               </span>{" "}
               {!onArc && (
                 <button
                   className="ghost"
-                  onClick={() => switchChain({ chainId: arcTestnet.id })}
+                  onClick={() => switchChain({ chainId: arcMainnet.id })}
                   style={{ marginLeft: 8 }}
                 >
                   Switch to Arc
@@ -64,7 +64,7 @@ export function Dapp() {
 
       {isConnected && !onArc && (
         <div className="msg info">
-          Please switch to Arc Testnet (chain ID 5042002) to use ArcNetting.
+          Please switch to Arc Mainnet (chain ID 5042) to use ArcNetting.
         </div>
       )}
     </div>

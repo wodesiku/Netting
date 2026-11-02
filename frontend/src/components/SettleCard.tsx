@@ -2,7 +2,7 @@ import { useState } from "react";
 import { usePublicClient, useWriteContract, useWaitForTransactionReceipt, useAccount } from "wagmi";
 import { NETTING_HUB_ABI, ERC20_ABI } from "../abi";
 import { NETTING_HUB_ADDRESS } from "../config";
-import { USDC_ADDRESS } from "../chain";
+import { USDC_ADDRESS, EXPLORER_URL } from "../chain";
 import { netObligations, Obligation } from "../netting";
 
 export function SettleCard() {
@@ -102,7 +102,7 @@ export function SettleCard() {
       });
       setLastHash(settleHash);
       pushLog(`✅ Settled! tx: ${settleHash}`);
-      pushLog(`Explorer: https://testnet.arcscan.app/tx/${settleHash}`);
+      pushLog(`Explorer: ${EXPLORER_URL}/tx/${settleHash}`);
     } catch (e: any) {
       pushLog(`❌ Error: ${e.shortMessage ?? e.message ?? String(e)}`);
     } finally {

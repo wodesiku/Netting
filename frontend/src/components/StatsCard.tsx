@@ -1,7 +1,7 @@
 import { useAccount, useReadContract } from "wagmi";
 import { ERC20_ABI } from "../abi";
-import { USDC_ADDRESS } from "../chain";
-import { arcTestnet } from "../chain";
+import { USDC_ADDRESS, EXPLORER_URL, arcMainnet } from "../chain";
+
 
 export function StatsCard() {
   const { address } = useAccount();
@@ -23,21 +23,13 @@ export function StatsCard() {
           <div className="k">ERC-20 USDC balance</div>
         </div>
         <div>
-          <div className="v">{arcTestnet.id}</div>
+          <div className="v">{arcMainnet.id}</div>
           <div className="k">Chain ID</div>
         </div>
         <div>
           <div className="v">
-            <a href="https://faucet.circle.com" target="_blank" rel="noreferrer">
-              Faucet
-            </a>
-          </div>
-          <div className="k">Get testnet USDC</div>
-        </div>
-        <div>
-          <div className="v">
-            <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer">
-              ArcScan
+            <a href={EXPLORER_URL} target="_blank" rel="noreferrer">
+              Arc Explorer
             </a>
           </div>
           <div className="k">Explorer</div>

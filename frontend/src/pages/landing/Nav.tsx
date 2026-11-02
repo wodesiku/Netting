@@ -17,7 +17,7 @@ export function Nav() {
             href="https://testnet.arcscan.app/address/0xFb906A05D849729825e54ebD737bdC936E91271D"
             target="_blank" rel="noreferrer"
           >
-            View on ArcScan
+            View testnet deployment
           </a>
           <a className="lbtn lbtn-sm lbtn-primary" href="/app" style={{ marginLeft: 8 }}>
             Launch App
