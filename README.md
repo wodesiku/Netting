@@ -1,9 +1,9 @@
 # ⚡ ArcNetting
 
-> Multilateral obligation netting & USDC settlement on **Arc Testnet**.
+> Multilateral obligation netting & USDC settlement on **Arc Mainnet**.
 > Inspired by [Cycles](https://community.arc.io/home/blogs/arc-cycles-multilateral-clearing-and-settlement-on-arc-2026-07-17) — net B2B obligations off-chain, settle residuals on-chain in USDC.
 
-[![Live on Arc Testnet](https://img.shields.io/badge/Arc%20Testnet-5042002-2775ca)](https://testnet.arcscan.app/address/0xFb906A05D849729825e54ebD737bdC936E91271D)
+[![Arc Mainnet](https://img.shields.io/badge/Arc%20Mainnet-5042-2775ca)](https://explorer.arc.io)
 [![Tests](https://img.shields.io/badge/tests-10%2F10%20passing-10b981)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
@@ -26,18 +26,32 @@ C owes A  80          C net:  +20         └───────────�
 
 ## Table of contents
 
-- [Live deployment](#-live-deployment--arc-testnet)
+- [Mainnet deployment](#-mainnet-deployment--arc-mainnet)
+- [Testnet pilot](#-testnet-pilot-2026-07-18)
 - [Repo layout](#-repo-layout)
 - [Quickstart](#-quickstart)
 - [Architecture](#-architecture)
-- [Arc Testnet facts](#-arc-testnet-facts-verified-2026-07-18)
+- [Arc Mainnet facts](#-arc-mainnet-facts)
 - [Security](#-security)
 - [Contributing](#-contributing)
 - [License](#-license)
 
 ---
 
-## 🚀 Live deployment — Arc Testnet
+## 🚀 Mainnet deployment — Arc Mainnet
+
+| Item | Value |
+|---|---|
+| **NettingHub** | _Not deployed yet — fill in after running the deploy script_ |
+| Network | Arc Mainnet (chain ID `5042`) |
+| Explorer | https://explorer.arc.io |
+| Frontend | https://wuhanmf3.de5.net |
+
+---
+
+## 🧪 Testnet pilot (2026-07-18)
+
+Before the mainnet launch, the contract was piloted on Arc Testnet (chain ID `5042002`).
 
 | Item | Value |
 |---|---|
@@ -47,7 +61,7 @@ C owes A  80          C net:  +20         └───────────�
 | Frontend | https://wuhanmf3.de5.net |
 | Deployed | 2026-07-18 |
 
-### End-to-end settlement demo (cycle #1)
+### End-to-end settlement demo (testnet cycle #1)
 
 3-party multilateral netting executed on-chain:
 
@@ -82,7 +96,7 @@ arcnetting/
 │   ├── src/NettingHub.sol              main contract (register/submit/confirm/net-settle)
 │   ├── test/NettingHub.t.sol           5 unit tests
 │   ├── test/mocks/MockUSDC.sol         ERC-20 mock for tests
-│   ├── script/Deploy.s.sol             Arc Testnet deploy script
+│   ├── script/Deploy.s.sol             Arc Mainnet deploy script
 │   ├── foundry.toml                    RPC + remappings
 │   └── .env.example                    PRIVATE_KEY template
 │
@@ -98,7 +112,7 @@ arcnetting/
 │   ├── src/components/                 dApp cards (Register/Obligations/Settle/Stats)
 │   ├── src/netting.ts                  browser-side netting engine
 │   ├── src/abi.ts                      contract ABIs
-│   ├── src/chain.ts                    Arc Testnet chain config
+│   ├── src/chain.ts                    Arc Mainnet chain config
 │   └── .env.example                    VITE_NETTING_HUB_ADDRESS template
 │
 ├── docs/                         Documentation
@@ -143,18 +157,18 @@ pnpm test           # 5 vitest tests incl. fuzz
 pnpm demo           # runnable walk-through
 ```
 
-### 3. Deploy to Arc Testnet
+### 3. Deploy to Arc Mainnet
 
-Get testnet USDC from https://faucet.circle.com, then:
+⚠ This uses real funds. Fund a dedicated deployer wallet with a small amount of USDC (used for gas), then:
 
 ```bash
 cd contracts
 cp .env.example .env
-# edit .env: PRIVATE_KEY=0x<your testnet key>
+# edit .env: PRIVATE_KEY=0x<your mainnet deployer key>
 
 source .env
 forge script script/Deploy.s.sol \
-  --rpc-url arc_testnet \
+  --rpc-url arc_mainnet \
   --broadcast \
   --legacy \
   -vvvv
@@ -218,14 +232,13 @@ Then add a CNAME in Cloudflare DNS pointing to `arcnetting.pages.dev`, and set u
 
 ---
 
-## 📊 Arc Testnet facts (verified 2026-07-18)
+## 📊 Arc Mainnet facts
 
 | Field | Value |
 |---|---|
-| Chain ID | `5042002` (`0x4CEF52`) |
-| RPC | `https://rpc.testnet.arc.network` |
-| Explorer | https://testnet.arcscan.app |
-| Faucet | https://faucet.circle.com |
+| Chain ID | `5042` (`0x13B2`) |
+| RPC | `https://rpc.mainnet.arc.io` |
+| Explorer | https://explorer.arc.io |
 | Native gas | USDC (18 decimals) |
 | ERC-20 USDC | `0x3600000000000000000000000000000000000000` (6 decimals) |
 | CCTP domain | 26 (per current docs) |
@@ -236,7 +249,7 @@ Then add a CNAME in Cloudflare DNS pointing to `arcnetting.pages.dev`, and set u
 
 ## 🔐 Security
 
-- **Testnet only** — this project has never touched mainnet funds. Do not deploy the same bytecode to mainnet without an audit.
+- **Mainnet = real funds** — get the contracts audited before deploying, and use a dedicated deployer key.
 - **Bilateral confirmation** — obligations require both debtor submission and creditor confirmation before entering a cycle.
 - **Reentrancy protection** — `settle()` uses OpenZeppelin `ReentrancyGuard` + `SafeERC20`.
 - **Access control** — only the owner can designate operators; only operators can close cycles / settle.
@@ -290,5 +303,5 @@ MIT — see [`LICENSE`](./LICENSE).
 ---
 
 <div align="center">
-  <sub>Built on <a href="https://docs.arc.io">Arc</a> · Powered by <a href="https://www.circle.com/usdc">USDC</a> · Testnet only</sub>
+  <sub>Built on <a href="https://docs.arc.io">Arc</a> · Powered by <a href="https://www.circle.com/usdc">USDC</a> · Arc Mainnet</sub>
 </div>

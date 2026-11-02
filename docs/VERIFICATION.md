@@ -1,3 +1,20 @@
+# Arc Mainnet parameters
+
+The project now targets **Arc Mainnet**:
+
+| Field | Value |
+|---|---|
+| Chain ID | 5042 |
+| RPC | https://rpc.mainnet.arc.io |
+| Explorer | https://explorer.arc.io |
+| ERC-20 USDC addr | 0x3600000000000000000000000000000000000000 (same as testnet) |
+
+Re-check CCTP / Gateway addresses against https://docs.arc.io/arc/references/contract-addresses before using them on mainnet.
+
+---
+
+_The report below is the original **testnet** cross-check, kept for history._
+
 # Documentation verification — 2026-07-18
 
 Cross-checked the values in `../ARC_BUILDER_AI_GUIDE.md` against live https://docs.arc.io pages.

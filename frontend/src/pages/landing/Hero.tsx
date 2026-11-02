@@ -49,7 +49,7 @@ export function Hero() {
             <div className="lhstat"><div className="v">92.86%</div><div className="k">Liquidity saved</div></div>
             <div className="lhstat"><div className="v">2.8 → 0.2</div><div className="k">Gross → Net USDC</div></div>
             <div className="lhstat"><div className="v">1 tx</div><div className="k">Atomic settlement</div></div>
-            <div className="lhstat"><div className="v">5042002</div><div className="k">Arc Chain ID</div></div>
+            <div className="lhstat"><div className="v">5042</div><div className="k">Arc Chain ID</div></div>
           </div>
         </div>
 

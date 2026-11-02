@@ -1,24 +1,23 @@
-const ADDR_BASE = "https://testnet.arcscan.app/address/";
+import { EXPLORER_URL, USDC_ADDRESS, arcMainnet } from "../../chain";
+import { NETTING_HUB_ADDRESS } from "../../config";
+
+const ZERO = "0x0000000000000000000000000000000000000000";
+const hubDeployed = NETTING_HUB_ADDRESS !== ZERO;
 
 const CONTRACTS = [
   {
     name: "NettingHub",
-    addr: "0xFb906A05D849729825e54ebD737bdC936E91271D",
-    link: `${ADDR_BASE}0xFb906A05D849729825e54ebD737bdC936E91271D`,
+    addr: hubDeployed ? NETTING_HUB_ADDRESS : "Not deployed yet",
+    link: hubDeployed ? `${EXPLORER_URL}/address/${NETTING_HUB_ADDRESS}` : undefined,
   },
   {
     name: "USDC (ERC-20)",
-    addr: "0x3600000000000000000000000000000000000000",
-    link: `${ADDR_BASE}0x3600000000000000000000000000000000000000`,
+    addr: USDC_ADDRESS,
+    link: `${EXPLORER_URL}/address/${USDC_ADDRESS}`,
   },
   {
-    name: "Operator (deployer)",
-    addr: "0xBC841F74E7EacF909a3662b11a3a588BEe3b071C",
-    link: `${ADDR_BASE}0xBC841F74E7EacF909a3662b11a3a588BEe3b071C`,
-  },
-  {
-    name: "Arc Testnet",
-    addr: "Chain ID 5042002 · rpc.testnet.arc.network",
+    name: "Arc Mainnet",
+    addr: `Chain ID ${arcMainnet.id} · ${new URL(arcMainnet.rpcUrls.default.http[0]).host}`,
     link: "https://docs.arc.io/arc/references/connect-to-arc",
   },
 ];
@@ -29,7 +28,7 @@ export function Contracts() {
       <div className="lcontainer">
         <div className="lsection-head">
           <div className="lsection-tag">Contracts</div>
-          <h2>Reference deployment on Arc Testnet.</h2>
+          <h2>Deployment on Arc Mainnet.</h2>
         </div>
         <div className="lcontract-list">
           {CONTRACTS.map((c) => (
@@ -38,7 +37,7 @@ export function Contracts() {
                 <div className="name">{c.name}</div>
                 <div className="addr">{c.addr}</div>
               </div>
-              <a href={c.link} target="_blank" rel="noreferrer">View →</a>
+              {c.link && <a href={c.link} target="_blank" rel="noreferrer">View →</a>}
             </div>
           ))}
         </div>

@@ -22,7 +22,6 @@ export function Footer() {
             <h4>Developers</h4>
             <a href="https://docs.arc.io" target="_blank" rel="noreferrer">Arc Docs</a>
             <a href="https://explorer.arc.io" target="_blank" rel="noreferrer">Arc Explorer</a>
-            <a href="https://faucet.circle.com" target="_blank" rel="noreferrer">Faucet</a>
           </div>
           <div className="lfooter-col">
             <h4>Community</h4>
@@ -33,7 +32,7 @@ export function Footer() {
         </div>
         <div className="lfooter-bottom">
           <span>© 2026 ArcNetting. Built on Arc.</span>
-          <span className="lmono">chain 5042002 · usdc native gas</span>
+          <span className="lmono">chain 5042 · usdc native gas</span>
         </div>
       </div>
     </footer>

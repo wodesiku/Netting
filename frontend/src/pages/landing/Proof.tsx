@@ -1,3 +1,5 @@
+// Pilot cycle ran on Arc Testnet before the mainnet launch.
+// Replace with mainnet tx hashes once a mainnet cycle has settled.
 const TX_BASE = "https://testnet.arcscan.app/tx/";
 
 const PROOFS = [
@@ -28,8 +30,8 @@ export function Proof() {
           <div className="lsection-tag">On-chain proof</div>
           <h2>Every claim is verifiable.</h2>
           <p className="lsection-sub">
-            Cycle #1 settled on Arc Testnet on 2026-07-18.
-            All numbers below are pulled from the live contract.
+            Pilot cycle #1 settled on Arc Testnet on 2026-07-18, before the mainnet launch.
+            All numbers below are from that pilot contract.
           </p>
         </div>
 

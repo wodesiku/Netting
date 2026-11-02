@@ -18,3 +18,4 @@ arc_mainnet = "https://rpc.mainnet.arc.io"
 
 [etherscan]
 arc_testnet = { key = "none", url = "https://testnet.arcscan.app/api" }
+arc_mainnet = { key = "none", url = "https://explorer.arc.io/api" }
